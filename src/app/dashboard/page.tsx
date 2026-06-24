@@ -113,7 +113,7 @@ export default function DashboardPage() {
               START SHIFT
             </button>
           ) : (
-            <button className="bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase py-4 rounded-2xl text-lg">
+            <button onClick={() => router.push("/shift/end")} className="bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase py-4 rounded-2xl text-lg">
               END SHIFT
             </button>
           )}
