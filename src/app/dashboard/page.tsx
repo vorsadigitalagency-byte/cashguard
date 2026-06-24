@@ -113,9 +113,12 @@ export default function DashboardPage() {
               START SHIFT
             </button>
           ) : (
-            <button onClick={() => router.push("/shift/end")} className="bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase py-4 rounded-2xl text-lg">
-              END SHIFT
-            </button>
+            <button
+  onClick={() => router.push("/shift/end")}
+  className="bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase py-4 rounded-2xl text-lg"
+>
+  END SHIFT
+</button>
           )}
           <div className="grid grid-cols-2 gap-3">
             <button onClick={() => router.push("/transaction")} className="bg-[#1A1A2E] text-white font-bold uppercase py-4 rounded-2xl border border-[#C0C0C0]/20 text-sm">
