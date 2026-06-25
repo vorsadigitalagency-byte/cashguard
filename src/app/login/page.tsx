@@ -72,8 +72,7 @@ export default function LoginPage() {
             </button>
           </form>
           <p className="text-center text-gray-400 mt-4 text-sm">
-            Don't have an account?{" "}
-            <a href="/register"-[#00D4AA]">Create Account</a>
+            No account yet? <a href="/register" className="text-[#00D4AA]">Create Account</a>
           </p>
         </div>
         <p className="text-center text-gray-600 mt-6 text-xs uppercase tracking-widest">
