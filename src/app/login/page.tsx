@@ -14,16 +14,14 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(error.message);
+      setLoading(false);
     } else {
       router.push("/dashboard");
+      router.refresh();
     }
-    setLoading(false);
   };
 
   return (
@@ -68,16 +66,14 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00D4AA] text-[#0F0F1A] font-black uppercase tracking-wider py-3 rounded-lg hover:bg-[#0tion"
+              className="w-full bg-[#00D4AA] text-[#0F0F1A] font-black uppercase tracking-wider py-3 rounded-lg hover:bg-[#00B894] transition disabled:opacity-60"
             >
               {loading ? "Signing in..." : "SIGN IN"}
             </button>
           </form>
           <p className="text-center text-gray-400 mt-4 text-sm">
             Don't have an account?{" "}
-            <a href="/register" className="text-[#00D4AA]">
-              Create Account
-            </a>
+            <a href="/register"-[#00D4AA]">Create Account</a>
           </p>
         </div>
         <p className="text-center text-gray-600 mt-6 text-xs uppercase tracking-widest">
