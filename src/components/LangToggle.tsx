@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getLang, setLang, t } from "@/lib/i18n";
+import { getLang, setLang } from "@/lib/i18n";
 
 export default function LangToggle() {
   const [lang, setLangState] = useState<"en" | "ur">("en");
@@ -9,17 +9,13 @@ export default function LangToggle() {
     setLangState(getLang());
   }, []);
 
-  const toggleLanguage = () => {
-    const nextLang = lang === "en" ? "ur" : "en";
-    setLang(nextLang);
-  };
-
   return (
     <button
-      onClick={toggleLanguage}
-      className="px-3 py-1 rounded-full text-xs font-bold border border-[#00D4AA]/30 text-[#00D4AA] bg-[#00D4AA]/10 hover:bg-[#00D4AA]/20 transition"
+      onClick={() => setLang(lang === "en" ? "ur" : "en")}
+      className="bg-red-500 text-white font-bold p-2 rounded z-50 relative"
+      style={{ display: 'block', minWidth: '60px' }}
     >
-      {t[lang].language}
+      LANG: {lang.toUpperCase()}
     </button>
   );
 }
