@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseMiddleware } from "@/lib/supabase";
+import { createSupabaseMiddleware } from "@/lib/supabase-server";
 
 const PUBLIC_ROUTES = ["/login", "/register"];
 const OWNER_ONLY_ROUTES = ["/owner"];

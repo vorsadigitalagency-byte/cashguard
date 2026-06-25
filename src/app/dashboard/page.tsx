@@ -138,7 +138,7 @@ export default function DashboardPage() {
   if (loading || shiftLoading) {
     return (
       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-        <div clasame="text-center">
+        <div className="text-center">
           <h1 className="text-3xl font-black text-white uppercase">
             Cash<span className="text-[#00D4AA]">Guard</span>
           </h1>
