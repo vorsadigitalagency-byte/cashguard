@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
-import { getLang, setLang, t } from "@/lib/i18n";
+import { getLang, t } from "@/lib/i18n";
 import LangToggle from "@/components/LangToggle";
 
 function Toast({ message, type, onClose }: { message: string; type: "success" | "error"; onClose: () => void; }) {
@@ -16,97 +16,61 @@ function Toast({ message, type, onClose }: { message: string; type: "success" | 
   );
 }
 
-function StartShiftModal({ onConfirm, onCancel, loading }: { onConfirm: (amount: number) => void; onCancel: () => void; loading: boolean; }) {
-  const [value, setValue] = useState("");
-  const lang = getLang();
-  const tr = t[lang];
-  const invalid = !value || isNaN(Number(value)) || Number(value) < 0;
-  return (
-    <div className="fixed inset-0 bg-black/70 z-40 flex items-end justify-center p-4">
-      <div className="w-full max-w-md bg-[#1A1A2E] rounded-3xl p-6 border border-gray-700">
-        <h3 className="text-white text-lg font-black uppercase mb-1">{tr.shiftStart}</h3>
-        <p className="text-gray-400 text-sm mb-5">{tr.openingCash}</p>
-        <input
-          type="number"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="0"
-          min="0"
-          autoFocus
-          className="w-full bg-[#0A0A0F] text-white border border-gray-700 rounded-2xl p-4 text-3xl font-black focus:outline-none focus:border-[#00D4AA] mb-4"
-        />
-        <div className="grid grid-cols-2 gap-3">
-          <button onClick={onCancel} className="py-3 rounded-2xl bg-gray-800 text-gray-400 font-bold uppercase">{tr.cancel}</button>
-          <button onClick={() => !invalid && onConfirm(Number(value))} disabled={invalid || loading} className="py-3 rounded-2xl bg-[#00D4AA] text-[#0A0A0F] font-black uppercase disabled:opacity-40">
-            {loading ? tr.loading : tr.start}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function DashboardPage() {
-  const [mounted, setMounted] = require("react").useState(false);
-  require("react").useEffect(() => { setMounted(true); }, []);
   const router = useRouter();
-  const { profile, loading, signOut } = useAuth();
-  const lang = getLang();
-  const tr = t[lang];
-
-  const [shift, setShift] = useState<{ id: string; opening_balance: number; status: string; } | null>(null);
+  const { profile, loading } = useAuth();
+  const [shift, setShift] = useState<any>(null);
   const [shiftLoading, setShiftLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [startingShift, setStartingShift] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const [shiftFetched, setShiftFetched] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  if (profile && !shiftFetched) {
-    setShiftFetched(true);
-    supabase.from("shifts").select("*").eq("cashier_id", profile.id).eq("status", "active").single()
-      .then(({ data }) => { setShift(data); setShiftLoading(false); });
-  }
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const showToast = (message: string, type: "success" | "error") => {
-    setToast({ message, type });
-    setTimeout(() => setToast(null), 3500);
-  };
+  useEffect(() => {
+    if (!loading && !profile) {
+      router.push("/login");
+    }
+  }, [profile, loading, router]);
 
-  const handleStartShift = async (openingBalance: number) => {
-    if (!profile) return;
-    setStartingShift(true);
-    const { data, error } = await supabase.from("shifts")
-      .insert({ cashier_id: profile.id, opening_balance: openingBalance, status: "active" })
-      .select().single();
-    setStartingShift(false);
-    setShowModal(false);
-    if (error || !data) { showToast(tr.shiftError, "error"); return; }
-    setShift(data);
-    showToast(tr.shiftStarted, "success");
-  };
+  useEffect(() => {
+    async function checkActiveShift() {
+      if (!profile) return;
+      const { data } = await supabase
+        .from("shifts")
+        .select("*")
+        .eq("cashier_id", profile.id)
+        .eq("status", "active")
+        .maybeSingle();
+      if (data) setShift(data);
+      setShiftLoading(false);
+    }
+    if (profile) checkActiveShift();
+  }, [profile]);
 
   if (!mounted || loading || shiftLoading) {
     return (
       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-black text-white uppercase">Cash<span className="text-[#00D4AA]">Guard</span></h1>
-          <p className="text-gray-500 mt-2 animate-pulse">{tr.loading}</p>
-        </div>
+        <h1 className="text-3xl font-black text-white uppercase">Cash<span className="text-[#00D4AA]">Guard</span></h1>
       </div>
     );
   }
 
+  const lang = getLang();
+  const tr = t[lang];
   const name = profile?.nick_name || profile?.full_name || "User";
   const avatarUrl = (profile as any)?.avatar_url;
 
   return (
     <div className="min-h-screen bg-[#0A0A0F] text-white pb-24" dir={lang === "ur" ? "rtl" : "ltr"}>
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      {showModal && <StartShiftModal onConfirm={handleStartShift} onCancel={() => setShowModal(false)} loading={startingShift} />}
-
+      
       <div className="bg-gradient-to-r from-[#0A0A0F] via-[#1A1A2E] to-[#0A0A0F] p-4 flex justify-between items-center border-b border-gray-800">
         <h1 className="text-xl font-black uppercase tracking-wider">Cash<span className="text-[#00D4AA]">Guard</span></h1>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <LangToggle />
           <button onClick={() => router.push("/profile")} className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-[#00D4AA] bg-[#1A1A2E] flex items-center justify-center">
@@ -125,63 +89,28 @@ export default function DashboardPage() {
         <div className="bg-gradient-to-br from-[#1A1A2E] via-[#16213E] to-[#0F3460] rounded-3xl p-5 mb-4 border border-[#00D4AA]/20">
           <p className="text-gray-400 text-sm">{tr.greeting}</p>
           <h2 className="text-2xl font-black text-white mt-1">{name}</h2>
-          <div className="flex items-center gap-2 mt-2">
-            <span className="bg-[#00D4AA]/20 text-[#00D4AA] text-xs px-3 py-1 rounded-full uppercase font-bold border border-[#00D4AA]/30">{profile?.role}</span>
-            <span className={"text-xs px-3 py-1 rounded-full font-bold " + (shift ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-gray-700/50 text-gray-400 border border-gray-600")}>
-              {shift ? tr.shiftActive : tr.noShift}
-            </span>
-          </div>
+          <span className="mt-2 inline-block bg-[#00D4AA]/20 text-[#00D4AA] text-xs px-3 py-1 rounded-full uppercase font-bold">{profile?.role}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-4 border border-gray-800">
+          <div className="bg-[#1A1A2E] rounded-2xl p-4 border border-gray-800">
             <p className="text-gray-500 text-xs uppercase">{tr.opening}</p>
-            <p className="text-2xl font-black text-[#00D4AA] mt-1">PKR {shift?.opening_balance?.toLocaleString() || 0}</p>
+            <p className="text-2xl font-black text-[#00D4AA] mt-1">PKR {shift?.opening_balance || 0}</p>
           </div>
-          <div className="bg-gradient-to-br from-[#1A1A2E] to-[#16213E] rounded-2xl p-4 border border-gray-800">
+          <div className="bg-[#1A1A2E] rounded-2xl p-4 border border-gray-800">
             <p className="text-gray-500 text-xs uppercase">{tr.role}</p>
-            <p className="text-2xl font-black text-[#C0C0C0] mt-1">{shift ? tr.shiftActive : tr.noShift}</p>
+            <p className="text-2xl font-black text-gray-400 mt-1">{shift ? tr.shiftActive : tr.noShift}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
-          {!shift ? (
-            <button onClick={() => setShowModal(true)} className="bg-gradient-to-r from-[#00D4AA] to-[#00B894] text-[#0A0A0F] font-black uppercase py-4 rounded-2xl text-lg tracking-wider">
-              {tr.startShift}
-            </button>
-          ) : (
-            <button onClick={() => router.push("/shift/end")} className="bg-gradient-to-r from-red-600 to-red-700 text-white font-black uppercase py-4 rounded-2xl text-lg">
-              {tr.endShift}
-            </button>
-          )}
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => router.push("/transaction")} className="bg-[#1A1A2E] text-white font-bold uppercase py-4 rounded-2xl border border-[#C0C0C0]/20 text-sm">{tr.addEntry}</button>
-            <button onClick={() => router.push("/history")} className="bg-[#1A1A2E] text-white font-bold uppercase py-4 rounded-2xl border border-[#C0C0C0]/20 text-sm">{tr.history}</button>
-          </div>
-          {profile?.role === "owner" && (
-            <button onClick={() => router.push("/owner")} className="bg-[#FF6B35]/20 text-[#FF6B35] font-bold uppercase py-4 rounded-2xl border border-[#FF6B35]/30">{tr.ownerDashboard}</button>
-          )}
-          <button onClick={signOut} className="text-gray-600 text-sm uppercase tracking-wider py-2">{tr.logout}</button>
-        </div>
-      </div>
+        <button className="w-full bg-[#00D4AA] text-[#0A0A0F] font-black uppercase py-4 rounded-2xl text-lg mb-4">
+          {shift ? tr.endShift : tr.startShift}
+        </button>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-[#1A1A2E] border-t border-gray-800 flex justify-around py-3 px-4">
-        <button className="flex flex-col items-center gap-1">
-          <span className="text-[#00D4AA] text-xl">🏠</span>
-          <span className="text-[#00D4AA] text-xs font-bold">{tr.home}</span>
-        </button>
-        <button onClick={() => router.push("/transaction")} className="flex flex-col items-center gap-1">
-          <span className="text-gray-500 text-xl">➕</span>
-          <span className="text-gray-500 text-xs">{tr.entry}</span>
-        </button>
-        <button onClick={() => router.push("/history")} className="flex flex-col items-center gap-1">
-          <span className="text-gray-500 text-xl">📋</span>
-          <span className="text-gray-500 text-xs">{tr.history}</span>
-        </button>
-        <button onClick={() => router.push("/profile")} className="flex flex-col items-center gap-1">
-          <span className="text-gray-500 text-xl">👤</span>
-          <span className="text-gray-500 text-xs">{tr.profile}</span>
-        </button>
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => router.push("/transaction")} className="bg-[#1A1A2E] text-white font-bold py-4 rounded-2xl border border-gray-800 text-sm">{tr.addEntry}</button>
+          <button onClick={() => router.push("/history")} className="bg-[#1A1A2E] text-white font-bold py-4 rounded-2xl border border-gray-800 text-sm">{tr.history}</button>
+        </div>
       </div>
     </div>
   );
