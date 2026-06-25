@@ -47,6 +47,8 @@ function StartShiftModal({ onConfirm, onCancel, loading }: { onConfirm: (amount:
 }
 
 export default function DashboardPage() {
+  const [mounted, setMounted] = require("react").useState(false);
+  require("react").useEffect(() => { setMounted(true); }, []);
   const router = useRouter();
   const { profile, loading, signOut } = useAuth();
   const lang = getLang();
@@ -83,7 +85,7 @@ export default function DashboardPage() {
     showToast(tr.shiftStarted, "success");
   };
 
-  if (loading || shiftLoading) {
+  if (!mounted || loading || shiftLoading) {
     return (
       <div className="min-h-screen bg-[#0A0A0F] flex items-center justify-center">
         <div className="text-center">
