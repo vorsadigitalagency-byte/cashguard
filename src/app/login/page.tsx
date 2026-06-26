@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -49,19 +51,41 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-[#0F0F1A] text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-[#00D4AA]"
                 placeholder="you@example.com"
+                autoComplete="email"
                 required
               />
             </div>
             <div>
               <label className="text-gray-400 text-sm mb-1 block">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-[#0F0F1A] text-white border border-gray-700 rounded-lg p-3 pr-12 focus:outline-none focus:border-[#00D4AA]"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-whit           >
+                  {showPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
               <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#0F0F1A] text-white border border-gray-700 rounded-lg p-3 focus:outline-none focus:border-[#00D4AA]"
-                placeholder="••••••••"
-                required
+                type="checkbox"
+                id="remember"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+                className="w-4 h-4 accent-[#00D4AA]"
               />
+              <label htmlFor="remember" className="text-gray-400 text-sm">
+                Remember me
+              </label>
             </div>
             <button
               type="submit"
@@ -72,7 +96,8 @@ export default function LoginPage() {
             </button>
           </form>
           <p className="text-center text-gray-400 mt-4 text-sm">
-            No account yet? <a href="/register" className="text-[#00D4AA]">Create Account</a>
+            No accoun{" "}
+            <a href="/register" className="text-[#00D4AA]">Create Account</a>
           </p>
         </div>
         <p className="text-center text-gray-600 mt-6 text-xs uppercase tracking-widest">
