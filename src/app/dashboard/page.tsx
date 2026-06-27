@@ -164,7 +164,7 @@ export default function DashboardPage() {
           <span className="text-2xl">📋</span>
           <span className="text-gray-500 text-xs">{tr.history}</span>
         </button>
-        <button onClick={() => routerh("/profile")} className="flex flex-col items-center gap-1 py-1 px-3">
+        <button onClick={() => router.push("/profile")} className="flex flex-col items-center gap-1 py-1 px-3">
           <span className="text-2xl">👤</span>
           <span className="text-gray-500 text-xs">{tr.profile}</span>
         </button>
