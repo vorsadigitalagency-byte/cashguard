@@ -30,9 +30,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#0F0F1A] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-black text-white uppercase tracking-wider">
-            Cash<span className="text-[#00D4AA]">Guard</span>
-          </h1>
+          <img src="/logo.png" alt="CashGuard" className="h-16 w-auto mx-auto" />
           <p className="text-gray-400 mt-2">Har Paisa, Har Hisaab</p>
         </div>
         <div className="bg-[#1A1A2E] rounded-2xl p-8">

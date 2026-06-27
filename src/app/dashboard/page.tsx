@@ -69,7 +69,7 @@ export default function DashboardPage() {
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       <div className="bg-gradient-to-r from-[#0A0A0F] via-[#1A1A2E] to-[#0A0A0F] p-4 flex justify-between items-center border-b border-gray-800">
-        <h1 className="text-xl font-black uppercase tracking-wider">Cash<span className="text-[#00D4AA]">Guard</span></h1>
+        <img src="/logo.png" alt="CashGuard" className="h-8 w-auto" />
         <div className="flex items-center gap-4">
           <LangToggle />
           <button onClick={() => router.push("/profile")} className="flex items-center gap-2">
